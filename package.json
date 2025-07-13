@@ -1,0 +1,16 @@
+{
+  "name": "kma-wol-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "wake_on_lan": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "krzychu.mazurek@gmail.com",
+  "license": "ISC",
+  "type": "commonjs"
+}

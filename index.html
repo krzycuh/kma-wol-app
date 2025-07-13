@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wake-on-LAN</title>
+</head>
+<body>
+  <h1>Wake-on-LAN - uruchom zdalny komputer</h1>
+  <p id="userInfo"></p>
+  <label for="computerSelect">Wybierz komputer:</label>
+  <select id="computerSelect"></select>
+  <button id="wakeBtn">Uruchom komputer</button>
+  <p id="status"></p>
+
+  <script>
+    const btn = document.getElementById('wakeBtn');
+    const status = document.getElementById('status');
+    const userInfo = document.getElementById('userInfo');
+    const computerSelect = document.getElementById('computerSelect');
+
+    // Get token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+
+    // Populate computer dropdown
+    fetch('/computers?token=' + encodeURIComponent(token))
+      .then(res => res.json())
+      .then(names => {
+        names.forEach(name => {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          computerSelect.appendChild(option);
+        });
+      });
+    
+    fetch('/user?token=' + encodeURIComponent(token))
+      .then(res => res.json())
+      .then(user => {
+        userInfo.textContent = `Zalogowany jako: ${user.name}`;
+      });
+
+    btn.onclick = () => {
+      status.textContent = 'Wysyłanie sygnału...';
+      const computer = computerSelect.value;
+      fetch(`/wake?token=${token}&computer=${encodeURIComponent(computer)}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Błąd serwera');
+          return res.text();
+        })
+        .then(text => {
+          status.textContent = text;
+        })
+        .catch(err => {
+          status.textContent = 'Błąd: ' + err.message;
+        });
+    };
+  </script>
+</body>
+</html> 
