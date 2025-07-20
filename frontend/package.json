@@ -1,0 +1,11 @@
+{
+  "name": "kma-wol-frontend",
+  "version": "1.0.0",
+  "description": "Frontend dla aplikacji Wake-on-LAN",
+  "scripts": {
+    "start": "echo 'Frontend files are served by backend server'",
+    "build": "echo 'Static files ready'"
+  },
+  "author": "krzychu.mazurek@gmail.com",
+  "license": "ISC"
+} 

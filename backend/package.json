@@ -1,0 +1,17 @@
+{
+  "name": "kma-wol-backend",
+  "version": "1.0.0",
+  "description": "Backend dla aplikacji Wake-on-LAN",
+  "main": "server.js",
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "wake_on_lan": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "krzychu.mazurek@gmail.com",
+  "license": "ISC",
+  "type": "commonjs"
+} 

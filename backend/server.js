@@ -51,8 +51,11 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  console.log(`jestem klikany przez użytkownika: ${user}, ${pathname}, ${token}`);
+        
+
   if (req.method === 'GET' && pathname === '/') {
-    fs.readFile(path.join(__dirname, 'index.html'), (err, data) => {
+    fs.readFile(path.join(__dirname, '../frontend/public/index.html'), (err, data) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Błąd serwera');
@@ -94,7 +97,7 @@ const server = http.createServer((req, res) => {
     });
 
   } else if (req.method === 'GET' && pathname === '/unauthorized') {
-    fs.readFile(path.join(__dirname, 'unauthorized.html'), (err, data) => {
+    fs.readFile(path.join(__dirname, '../frontend/public/unauthorized.html'), (err, data) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Błąd serwera');

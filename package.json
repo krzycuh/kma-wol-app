@@ -1,16 +1,16 @@
 {
   "name": "kma-wol-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "dependencies": {
-    "dotenv": "^17.2.0",
-    "wake_on_lan": "^1.0.0"
-  },
+  "description": "Aplikacja Wake-on-LAN z podziałem na frontend i backend",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "start": "node index.js"
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
   },
   "author": "krzychu.mazurek@gmail.com",
-  "license": "ISC",
-  "type": "commonjs"
+  "license": "ISC"
 }
