@@ -1,4 +1,6 @@
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 const http = require('http');
 const wol = require('wake_on_lan');
 const fs = require('fs');
@@ -11,6 +13,7 @@ const VALID_TOKENS = {};
 .forEach(pair => {
   const [token, name] = pair.split('->');
   if (token && name) VALID_TOKENS[token] = name;
+  console.log(`registered token1: "${pair}", ${token}, name: ${name}`);
 });
 
 // Parse computers from environment variable
@@ -40,9 +43,12 @@ function parseUrl(url) {
   };
 }
 
+const PUBLIC_DIR = path.join(__dirname, './frontend/public');
+
 const server = http.createServer((req, res) => {
   const { pathname, token } = parseUrl(req.url);
   
+
   // Check authentication for all routes except error pages
   const user = validateToken(token);
   if (!user && pathname !== '/unauthorized') {
@@ -50,12 +56,10 @@ const server = http.createServer((req, res) => {
     res.end();
     return;
   }
-
-  console.log(`jestem klikany przez użytkownika: ${user}, ${pathname}, ${token}`);
         
 
   if (req.method === 'GET' && pathname === '/') {
-    fs.readFile(path.join(__dirname, '../frontend/public/index.html'), (err, data) => {
+    fs.readFile(path.join(__dirname, './frontend/public/index.html'), (err, data) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Błąd serwera');
@@ -97,7 +101,7 @@ const server = http.createServer((req, res) => {
     });
 
   } else if (req.method === 'GET' && pathname === '/unauthorized') {
-    fs.readFile(path.join(__dirname, '../frontend/public/unauthorized.html'), (err, data) => {
+    fs.readFile(path.join(__dirname, './frontend/public/unauthorized.html'), (err, data) => {
       if (err) {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Błąd serwera');
@@ -107,6 +111,29 @@ const server = http.createServer((req, res) => {
       res.end(data.toString());
     });
   } else {
+    // Obsługa plików statycznych (np. /main.js, /style.css, /favicon.ico)
+    if (req.method === 'GET' && pathname !== '/' && pathname !== '/unauthorized' && !pathname.startsWith('/api') && !pathname.startsWith('/computers') && !pathname.startsWith('/user') && !pathname.startsWith('/wake')) {
+      const staticFilePath = path.join(PUBLIC_DIR, pathname);
+      if (fs.existsSync(staticFilePath) && fs.statSync(staticFilePath).isFile()) {
+        // Ustal content-type na podstawie rozszerzenia
+        const ext = path.extname(staticFilePath).toLowerCase();
+        const contentTypes = {
+          '.html': 'text/html',
+          '.js': 'application/javascript',
+          '.css': 'text/css',
+          '.json': 'application/json',
+          '.png': 'image/png',
+          '.jpg': 'image/jpeg',
+          '.jpeg': 'image/jpeg',
+          '.gif': 'image/gif',
+          '.svg': 'image/svg+xml',
+          '.ico': 'image/x-icon'
+        };
+        res.writeHead(200, { 'Content-Type': contentTypes[ext] || 'application/octet-stream' });
+        fs.createReadStream(staticFilePath).pipe(res);
+        return;
+      }
+    }
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Nie znaleziono');
   }
