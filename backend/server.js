@@ -88,7 +88,7 @@ const server = http.createServer((req, res) => {
       res.end('Nieprawidłowy komputer');
       return;
     }
-    wol.wake(computer.mac, (err) => {
+    wol.wake(computer.mac, { address: '255.255.255.255' }, (err) => {
       if (err) {
         console.error(new Date().toISOString(), 'Błąd WoL:', err);
         res.writeHead(500, { 'Content-Type': 'text/plain' });
