@@ -7,5 +7,11 @@
     "build": "echo 'Static files ready'"
   },
   "author": "krzychu.mazurek@gmail.com",
-  "license": "ISC"
-} 
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@types/wake_on_lan": "^0.0.33",
+    "typescript": "^5.8.3"
+  }
+}
