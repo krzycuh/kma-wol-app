@@ -1,0 +1,12 @@
+services:
+  kma-wol-app:
+    image: kma-wol-app:latest
+    container_name: kma-wol-app
+    platform: linux/arm64
+    ports:
+      - "3000:3000"
+    environment:
+      - TOKENS=aaa->User1,bbb-->User2
+      - COMPUTERS=TEST->00:00:00:00:00:00
+      - NODE_ENV=production
+    restart: unless-stopped

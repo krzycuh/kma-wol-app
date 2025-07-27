@@ -1,12 +1,14 @@
 FROM node:18-alpine
 WORKDIR /app
 
-# Instalacja zależności
+# Instalacja zależności backend
 COPY backend/package*.json ./
 RUN npm install
 
-# Kopiowanie źródeł
-COPY backend/. .
+# Kopiowanie źródeł backend (z wykluczeniami z .dockerignore)
+COPY backend/ ./
+
+# Kopiowanie frontend public (jeśli potrzebne)
 COPY frontend/public ./frontend/public
 
 # Kompilacja TypeScript
