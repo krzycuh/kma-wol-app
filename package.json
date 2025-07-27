@@ -9,7 +9,7 @@
   "scripts": {
     "start": "cd backend && npm start",
     "dev": "cd backend && npm run dev",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../backend && npm test"
   },
   "author": "krzychu.mazurek@gmail.com",
   "license": "ISC"

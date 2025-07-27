@@ -6,7 +6,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - TOKENS=aaa->User1,bbb-->User2
+      - TOKENS=aaa->User1,bbb->User2
       - COMPUTERS=TEST->00:00:00:00:00:00
       - NODE_ENV=production
     restart: unless-stopped
