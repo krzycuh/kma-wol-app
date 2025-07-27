@@ -1,10 +1,4 @@
-// Global test setup
-import dotenv from 'dotenv';
-
-// Load test environment variables
-dotenv.config({ path: '.env.test' });
-
-// Wyciszamy console.log w testach, aby nie widzieć debug output
+// Nie wyciszamy console.log w testach, aby widzieć debug output
 global.console = {
   ...console,
   log: () => {},

@@ -8,5 +8,4 @@ services:
     environment:
       - TOKENS=aaa->User1,bbb->User2
       - COMPUTERS=TEST->00:00:00:00:00:00
-      - NODE_ENV=production
     restart: unless-stopped

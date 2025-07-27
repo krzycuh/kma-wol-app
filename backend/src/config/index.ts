@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 // Parse tokens from environment variable
 export type TokenMap = { [token: string]: string };
 export const VALID_TOKENS: TokenMap = {};
@@ -21,5 +18,5 @@ export const COMPUTERS: Computer[] = (process.env.COMPUTERS || '')
   })
   .filter(c => c.name && c.mac);
 
-export const PORT = 3000;
+export const PORT = parseInt(process.env.PORT || '3000', 10);
 export const PUBLIC_DIR = '../frontend/public'; 

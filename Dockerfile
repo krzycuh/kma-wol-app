@@ -17,4 +17,4 @@ RUN npx tsc
 EXPOSE 3000
 
 # Uruchamianie skompilowanego serwera
-CMD ["node", "dist/server.js"] 
+CMD ["node", "dist/src/server.js"]

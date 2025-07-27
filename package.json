@@ -9,7 +9,24 @@
   "scripts": {
     "start": "cd backend && npm start",
     "dev": "cd backend && npm run dev",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../backend && npm test"
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install && cd ../backend && npm test",
+    "build": "cd backend && npm run build",
+    "build:all": "npm run clean && npm run install:all && npm run build",
+    "clean": "cd backend && rm -rf dist && rm -rf node_modules && cd ../frontend && rm -rf node_modules && cd .. && rm -rf node_modules",
+    "rebuild": "npm run clean && npm run install:all && npm run build",
+    "rebuild:dev": "npm run rebuild && npm run dev",
+    "rebuild:start": "npm run rebuild && npm start",
+    "test": "cd backend && npm test",
+    "test:unit": "cd backend && npm run test:unit",
+    "test:integration": "cd backend && npm run test:integration",
+    "test:e2e": "cd backend && npm run test:e2e",
+    "test:coverage": "cd backend && npm run test:coverage",
+    "test:watch": "cd backend && npm run test:watch",
+    "test:watch:unit": "cd backend && npm run test:watch:unit",
+    "test:watch:integration": "cd backend && npm run test:watch:integration",
+    "test:watch:e2e": "cd backend && npm run test:watch:e2e",
+    "test:verbose": "cd backend && npm run test:verbose",
+    "test:debug": "cd backend && npm run test:debug"
   },
   "author": "krzychu.mazurek@gmail.com",
   "license": "ISC"
