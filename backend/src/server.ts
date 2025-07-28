@@ -5,6 +5,8 @@ import { validateToken } from './middleware/auth';
 import { handlePageRoutes } from './routes/pageRoutes';
 import { handleApiRoutes } from './routes/apiRoutes';
 import { handleStaticRoutes } from './routes/staticRoutes';
+import path from 'path';
+import { serveFile } from './middleware/staticFiles';
 
 function createServer(): http.Server {
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
@@ -23,18 +25,24 @@ function createServer(): http.Server {
       return;
     }
 
-    // 1. Handle page routes (HTML pages)
-    if (handlePageRoutes(req, res, pathname)) {
-      return;
-    }
-
     // 2. Handle API routes (JSON endpoints)
+    console.log('handleApiRoutes?');
     if (await handleApiRoutes(req, res, pathname, user || '')) {
+      console.log('yes');
       return;
     }
 
     // 3. Handle static files (JS, CSS, images, etc.)
+    console.log('handleStaticRoutes?');
     if (handleStaticRoutes(req, res, pathname)) {
+      console.log('yes');
+      return;
+    }
+
+    // 4. Handle page routes (HTML pages + SPA fallback)
+    console.log('handlePageRoutes?');
+    if (handlePageRoutes(req, res, pathname)) {
+      console.log('yes');
       return;
     }
 
