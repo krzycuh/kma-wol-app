@@ -19,6 +19,8 @@ function createServer(): http.Server {
 
     // 2. Check authentication for all other routes except error pages
     const user = validateToken(token);
+    console.log('[', user, ']', 'pathname:', pathname);
+
     if (!user && pathname !== '/unauthorized') {
       res.writeHead(302, { Location: '/unauthorized' });
       res.end();
@@ -35,7 +37,7 @@ function createServer(): http.Server {
       return;
     }
 
-    // 404 - Not Found
+    // 5. If we get here, it's a 404 - Not Found
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Nie znaleziono');
   });

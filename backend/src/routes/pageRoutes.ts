@@ -20,14 +20,17 @@ export function handlePageRoutes(
     return true;
   }
 
-  // Fallback SPA: każda inna ścieżka GET zwraca index.html
-  if (req.method === 'GET') {
+  // SPA fallback: tylko dla głównej strony
+  if (req.method === 'GET' && pathname === '/') {
     const filePath = path.join(PUBLIC_DIR, '/index.html');
-    if (!serveFile(res, filePath)) {
-      res.writeHead(500, { 'Content-Type': 'text/plain' });
-      res.end('Błąd serwera');
+    if (serveFile(res, filePath)) {
+      return true;
+    } else {
+      // Jeśli index.html nie istnieje, zwróć 404
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Nie znaleziono');
+      return true;
     }
-    return true;
   }
 
   return false;

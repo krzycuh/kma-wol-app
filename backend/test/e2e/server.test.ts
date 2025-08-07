@@ -13,7 +13,7 @@ jest.mock('../../src/config', () => ({
     { name: 'testpc1', mac: '00:11:22:33:44:55' },
     { name: 'testpc2', mac: 'AA:BB:CC:DD:EE:FF' }
   ],
-  PUBLIC_DIR: 'frontend/public'
+  PUBLIC_DIR: '../frontend/dist'
 }));
 
 jest.mock('wake_on_lan', () => ({
