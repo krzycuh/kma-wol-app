@@ -21,7 +21,9 @@ export function serveFile(
   statusCode: number = 200,
   customContentType?: string
 ): boolean {
+  console.log('PATH: ', filePath);
   if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    console.log('PATH: ', filePath, ' not exists');
     return false;
   }
 

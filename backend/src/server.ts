@@ -15,7 +15,14 @@ function createServer(): http.Server {
     console.log('pathname', pathname);
     console.log('token', token);
     
-    // Check authentication for all routes except error pages
+    // 1. Handle static files FIRST (JS, CSS, images, etc.) - no auth required
+    console.log('handleStaticRoutes?');
+    if (handleStaticRoutes(req, res, pathname)) {
+      console.log('yes');
+      return;
+    }
+
+    // 2. Check authentication for all other routes except error pages
     const user = validateToken(token);
     console.log('user', user);
     
@@ -25,16 +32,9 @@ function createServer(): http.Server {
       return;
     }
 
-    // 2. Handle API routes (JSON endpoints)
+    // 3. Handle API routes (JSON endpoints)
     console.log('handleApiRoutes?');
     if (await handleApiRoutes(req, res, pathname, user || '')) {
-      console.log('yes');
-      return;
-    }
-
-    // 3. Handle static files (JS, CSS, images, etc.)
-    console.log('handleStaticRoutes?');
-    if (handleStaticRoutes(req, res, pathname)) {
       console.log('yes');
       return;
     }

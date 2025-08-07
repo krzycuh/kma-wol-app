@@ -19,4 +19,4 @@ export const COMPUTERS: Computer[] = (process.env.COMPUTERS || '')
   .filter(c => c.name && c.mac);
 
 export const PORT = parseInt(process.env.PORT || '3000', 10);
-export const PUBLIC_DIR = '../frontend/public'; 
+export const PUBLIC_DIR = '../frontend/dist'; 
