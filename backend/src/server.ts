@@ -12,20 +12,13 @@ function createServer(): http.Server {
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const { pathname, token } = parseUrl(req.url || '/');
 
-    console.log('pathname', pathname);
-    console.log('token', token);
-    
     // 1. Handle static files FIRST (JS, CSS, images, etc.) - no auth required
-    console.log('handleStaticRoutes?');
     if (handleStaticRoutes(req, res, pathname)) {
-      console.log('yes');
       return;
     }
 
     // 2. Check authentication for all other routes except error pages
     const user = validateToken(token);
-    console.log('user', user);
-    
     if (!user && pathname !== '/unauthorized') {
       res.writeHead(302, { Location: '/unauthorized' });
       res.end();
@@ -33,16 +26,12 @@ function createServer(): http.Server {
     }
 
     // 3. Handle API routes (JSON endpoints)
-    console.log('handleApiRoutes?');
     if (await handleApiRoutes(req, res, pathname, user || '')) {
-      console.log('yes');
       return;
     }
 
     // 4. Handle page routes (HTML pages + SPA fallback)
-    console.log('handlePageRoutes?');
     if (handlePageRoutes(req, res, pathname)) {
-      console.log('yes');
       return;
     }
 
