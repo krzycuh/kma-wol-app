@@ -2,7 +2,7 @@ import http, { IncomingMessage, ServerResponse } from 'http';
 import { PORT } from './config';
 import { parseUrl } from './utils/urlParser';
 import { validateToken } from './middleware/auth';
-import { handlePageRoutes } from './routes/pageRoutes';
+import { handlePageRoutes, handleNotFound } from './routes/pageRoutes';
 import { handleApiRoutes } from './routes/apiRoutes';
 import { handleStaticRoutes } from './routes/staticRoutes';
 import path from 'path';
@@ -38,8 +38,7 @@ function createServer(): http.Server {
     }
 
     // 5. If we get here, it's a 404 - Not Found
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('Nie znaleziono');
+    handleNotFound(res);
   });
 
   return server;
