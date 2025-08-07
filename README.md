@@ -6,7 +6,7 @@ Aplikacja do zdalnego uruchamiania komputerów przez Wake-on-LAN z podziałem na
 
 ```
 kma-wol-app/
-├── backend/
+├── backend/             # Backend (Node.js + TypeScript)
 │   ├── src/
 │   │   ├── config/
 │   │   ├── controllers/
@@ -16,13 +16,14 @@ kma-wol-app/
 │   │   ├── utils/
 │   │   └── server.ts    # Główny plik serwera
 │   └── ...
-├── frontend/project/
+├── frontend/            # Frontend (React + Vite)
 │   ├── public/          # Pliki statyczne (HTML, CSS, JS)
 │   ├── src/
 │   │   ├── components/
 │   │   ├── pages/
 │   │   └── utils/
 │   └── ...
+├── pnpm-workspace.yaml  # Konfiguracja workspace dla pnpm
 ├── docker-compose.yml
 ├── Dockerfile
 ├── README.md
@@ -31,8 +32,37 @@ kma-wol-app/
 
 ## Instalacja
 
+### Wymagania wstępne
+
+Przed uruchomieniem aplikacji upewnij się, że masz zainstalowane:
+
+- **Node.js** (wersja 18 lub nowsza)
+- **pnpm** (zalecane) lub npm
+
+### Instalacja pnpm (zalecane)
+
 ```bash
-# Zainstaluj wszystkie zależności
+# macOS (Homebrew)
+brew install pnpm
+
+# Lub przez npm
+npm install -g pnpm
+```
+
+**Dlaczego pnpm?**
+- **3x szybszy** niż npm przy instalacji zależności
+- **Oszczędza miejsce** - współdzieli pakiety między projektami
+- **Lepsze workspaces** - natywna obsługa monorepo
+- **Bezpieczniejszy** - używa symlinków zamiast kopiowania plików
+- **Lepszy cache** - bardziej efektywne zarządzanie cache'em
+
+### Instalacja zależności
+
+```bash
+# Zainstaluj wszystkie zależności (pnpm)
+pnpm install
+
+# Lub używając npm:
 npm run install:all
 
 # Lub ręcznie:
@@ -44,10 +74,14 @@ cd ../backend && npm install
 ## Uruchomienie
 
 ```bash
-# Uruchom aplikację
-npm start
+# Uruchom aplikację (pnpm)
+pnpm start
 
 # Lub w trybie development (wymaga nodemon)
+pnpm run dev
+
+# Lub używając npm:
+npm start
 npm run dev
 ```
 
@@ -66,10 +100,28 @@ Aplikacja będzie dostępna pod adresem: `http://localhost:3000?token=YOUR_TOKEN
 
 ## Przydatne skrypty
 
-W projekcie dostępne są następujące skrypty npm (uruchamiaj z katalogu głównego, chyba że zaznaczono inaczej):
+W projekcie dostępne są następujące skrypty (uruchamiaj z katalogu głównego, chyba że zaznaczono inaczej):
 
 ### Główne skrypty (package.json w katalogu głównym)
 
+#### pnpm (zalecane)
+- `pnpm start` – uruchamia backend w trybie produkcyjnym
+- `pnpm run dev` – uruchamia backend w trybie developerskim (z hot-reload)
+- `pnpm install` – instaluje zależności we wszystkich częściach projektu
+- `pnpm run build` – kompiluje backend (TypeScript)
+- `pnpm run build:all` – czyści, instaluje zależności i buduje backend
+- `pnpm run clean` – usuwa katalogi node_modules i dist
+- `pnpm run rebuild` – czyści, instaluje zależności i buduje backend
+- `pnpm run rebuild:dev` – rebuild + uruchomienie w trybie developerskim
+- `pnpm run rebuild:start` – rebuild + uruchomienie w trybie produkcyjnym
+- `pnpm test` – uruchamia testy backendu
+- `pnpm run test:unit` – testy jednostkowe backendu
+- `pnpm run test:integration` – testy integracyjne backendu
+- `pnpm run test:e2e` – testy end-to-end backendu
+- `pnpm run test:coverage` – raport pokrycia testami
+- `pnpm run test:watch` – testy w trybie watch
+
+#### npm (alternatywa)
 - `npm start` – uruchamia backend w trybie produkcyjnym
 - `npm run dev` – uruchamia backend w trybie developerskim (z hot-reload)
 - `npm run install:all` – instaluje zależności we wszystkich częściach projektu
@@ -88,6 +140,18 @@ W projekcie dostępne są następujące skrypty npm (uruchamiaj z katalogu głó
 
 ### Skrypty backend (w katalogu backend)
 
+#### pnpm (zalecane)
+- `pnpm start` – uruchamia backend (wymaga wcześniejszego builda)
+- `pnpm run dev` – uruchamia backend z hot-reload (ts-node, nodemon)
+- `pnpm run build` – kompiluje TypeScript do katalogu dist
+- `pnpm test` – uruchamia wszystkie testy
+- `pnpm run test:unit` – testy jednostkowe
+- `pnpm run test:integration` – testy integracyjne
+- `pnpm run test:e2e` – testy end-to-end
+- `pnpm run test:coverage` – raport pokrycia testami
+- `pnpm run test:watch` – testy w trybie watch
+
+#### npm (alternatywa)
 - `npm start` – uruchamia backend (wymaga wcześniejszego builda)
 - `npm run dev` – uruchamia backend z hot-reload (ts-node, nodemon)
 - `npm run build` – kompiluje TypeScript do katalogu dist
@@ -100,8 +164,15 @@ W projekcie dostępne są następujące skrypty npm (uruchamiaj z katalogu głó
 
 ### Skrypty frontend (w katalogu frontend)
 
-- `npm start` – (placeholder) – frontend jest serwowany przez backend
-- `npm run build` – (placeholder) – frontend jest statyczny
+#### pnpm (zalecane)
+- `pnpm run dev` – uruchamia serwer deweloperski Vite
+- `pnpm run build` – buduje frontend do katalogu dist
+- `pnpm run preview` – podgląd zbudowanego frontendu
+
+#### npm (alternatywa)
+- `npm run dev` – uruchamia serwer deweloperski Vite
+- `npm run build` – buduje frontend do katalogu dist
+- `npm run preview` – podgląd zbudowanego frontendu
 
 ## Skrypty pomocnicze (fish)
 
