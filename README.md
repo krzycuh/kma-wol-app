@@ -56,7 +56,7 @@ npm run dev
 Utwórz plik `.env` w katalogu głównym z następującymi zmiennymi (uzywanymi przez npm start, przez dockera - nie):
 
 ```
-TOKENS=token1->user1,token2->user2
+TOKENS=token1->user1,token2->user2,token3->user3
 COMPUTERS=computer1->mac1,computer2->mac2
 ```
 
