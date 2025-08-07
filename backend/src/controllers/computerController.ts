@@ -4,8 +4,14 @@ import { getQueryParam } from '../utils/urlParser';
 import { ControllerResult, SuccessObject, SuccessMessage, Error } from '../utils/ControllerResult';
 
 export function getComputers(): ControllerResult {
-  const computerNames = COMPUTERS.map(c => c.name);
-  return new SuccessObject(computerNames);
+  // Zwracamy obiekty komputerów bez wrażliwych danych jak MAC adresy
+  const safeComputers = COMPUTERS.map(c => ({
+    name: c.name,
+    id: c.name, // Używamy nazwy jako ID
+    // Można dodać inne bezpieczne dane w przyszłości
+    // np. location, description, type, etc.
+  }));
+  return new SuccessObject(safeComputers);
 }
 
 export function wakeComputer(url: string, user: string): Promise<ControllerResult> {
@@ -25,10 +31,10 @@ export function wakeComputer(url: string, user: string): Promise<ControllerResul
 
     wol.wake(computer.mac, { address: '255.255.255.255' }, (err: Error | null) => {
       if (err) {
-        console.error(new Date().toISOString(), 'Błąd WoL:', err);
+        console.error(new Date().toISOString(), '[', user, ']', 'Błąd WoL:', err);
         resolve(new Error('Błąd wysłania Wake-on-LAN'));
       } else {
-        console.log(new Date().toISOString(), `Wysłano WoL do ${computer.mac} (${computer.name}) przez użytkownika: ${user}`);
+        console.log(new Date().toISOString(), '[', user, ']', `Wysłano WoL do ${computer.mac} (${computer.name}) przez użytkownika: ${user}`);
         resolve(new SuccessMessage(`Wysłano magiczny pakiet WoL do ${computer.name} przez użytkownika: ${user}`));
       }
     });

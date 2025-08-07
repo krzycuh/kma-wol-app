@@ -19,9 +19,9 @@ function createServer(): http.Server {
 
     // 2. Check authentication for all other routes except error pages
     const user = validateToken(token);
-    console.log('[', user, ']', 'pathname:', pathname);
 
     if (!user && pathname !== '/unauthorized') {
+      console.log(new Date().toISOString(), 'Redirecting to unauthorized', pathname);
       res.writeHead(302, { Location: '/unauthorized' });
       res.end();
       return;
@@ -48,7 +48,7 @@ function createServer(): http.Server {
 if (require.main === module) {
   const server = createServer();
   server.listen(PORT, () => {
-    console.log(`Serwer działa na porcie ${PORT}`);
+    console.log(new Date().toISOString(), `Serwer działa na porcie ${PORT}`);
   });
 }
 

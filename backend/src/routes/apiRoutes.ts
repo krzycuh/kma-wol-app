@@ -19,25 +19,29 @@ export async function handleApiRoutes(
   pathname: string,
   user: string
 ): Promise<boolean> {
+
   // Lista komputerów
-  if (req.method === 'GET' && pathname === '/computers') {
+  if (req.method === 'GET' && pathname === '/api/computers') {
     const result = getComputers();
+    console.log(new Date().toISOString(), '[', user, ']', '/api/computers', result);
     await sendResponse(res, result);
     return true;
   }
 
   // Informacje o użytkowniku
-  if (req.method === 'GET' && pathname === '/user') {
+  if (req.method === 'GET' && pathname === '/api/user') {
     const result = getUserInfo(user);
+    console.log(new Date().toISOString(), '[', user, ']', '/api/user', result);
     await sendResponse(res, result);
     return true;
   }
 
   // Wake-on-LAN
-  if (req.method === 'GET' && pathname === '/wake') {
+  if (req.method === 'GET' && pathname === '/api/wake') {
     const result = wakeComputer(req.url || '/', user);
+    console.log(new Date().toISOString(), '[', user, ']', '/api/wake', result);
     await sendResponse(res, result);
-    return true;
+    return true; 
   }
 
   return false;

@@ -15,7 +15,7 @@ export function handleStaticRoutes(
     if (serveFile(res, staticFilePath)) {
       return true;
     } else {
-      console.log('Static file not found:', staticFilePath);
+      console.log(new Date().toISOString(), 'Static file not found:', staticFilePath);
       // Return 404 for static files that don't exist
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Nie znaleziono');

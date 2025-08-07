@@ -32,6 +32,7 @@ export function serveFile(
   // Dla plików HTML dodaj charset=utf-8
   const finalContentType = ext === '.html' ? `${contentType}; charset=utf-8` : contentType;
   
+  console.log(new Date().toISOString(), 'Serve file:', filePath);
   res.writeHead(statusCode, { 'Content-Type': finalContentType });
   fs.createReadStream(filePath).pipe(res);
   return true;
