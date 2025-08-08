@@ -44,7 +44,7 @@ describe('Server E2E', () => {
   describe('Authentication', () => {
     it('should redirect to unauthorized page when no token provided', async () => {
       const response = await request(server)
-        .get('/computers')
+        .get('/api/computers')
         .expect(302);
 
       expect(response.headers.location).toBe('/unauthorized');
@@ -52,7 +52,7 @@ describe('Server E2E', () => {
 
     it('should allow access with valid token', async () => {
       const response = await request(server)
-        .get('/computers?token=test-token')
+        .get('/api/computers?token=test-token')
         .expect(200);
 
       expect(response.headers['content-type']).toContain('application/json');
@@ -60,7 +60,7 @@ describe('Server E2E', () => {
 
     it('should deny access with invalid token', async () => {
       const response = await request(server)
-        .get('/computers?token=invalid-token')
+        .get('/api/computers?token=invalid-token')
         .expect(302);
 
       expect(response.headers.location).toBe('/unauthorized');
@@ -70,15 +70,18 @@ describe('Server E2E', () => {
   describe('API Endpoints', () => {
     it('should return list of computers', async () => {
       const response = await request(server)
-        .get('/computers?token=test-token')
+        .get('/api/computers?token=test-token')
         .expect(200);
 
-      expect(response.body).toEqual(['testpc1', 'testpc2']);
+      expect(response.body).toEqual([
+        { name: 'testpc1', id: 'testpc1' },
+        { name: 'testpc2', id: 'testpc2' }
+      ]);
     });
 
     it('should return user information', async () => {
       const response = await request(server)
-        .get('/user?token=test-token')
+        .get('/api/user?token=test-token')
         .expect(200);
 
       expect(response.body).toEqual({ name: 'testuser' });
@@ -91,7 +94,7 @@ describe('Server E2E', () => {
       });
 
       const response = await request(server)
-        .get('/wake?computer=testpc1&token=test-token')
+        .get('/api/wake?computer=testpc1&token=test-token')
         .expect(200);
 
       expect(response.text).toContain('Wysłano magiczny pakiet WoL do testpc1');
@@ -100,7 +103,7 @@ describe('Server E2E', () => {
 
     it('should return 400 for invalid computer', async () => {
       const response = await request(server)
-        .get('/wake?computer=invalid&token=test-token')
+        .get('/api/wake?computer=invalid&token=test-token')
         .expect(400);
 
       expect(response.text).toBe('Nieprawidłowy komputer');
@@ -133,6 +136,7 @@ describe('Server E2E', () => {
         .get('/nonexistent.js?token=test-token')
         .expect(404);
 
+      // Static files return plain text for 404
       expect(response.text).toBe('Nie znaleziono');
     });
   });
@@ -143,7 +147,9 @@ describe('Server E2E', () => {
         .get('/unknown-route?token=test-token')
         .expect(404);
 
-      expect(response.text).toBe('Nie znaleziono');
+      // The 404 page now returns HTML instead of plain text
+      expect(response.text).toContain('404');
+      expect(response.text).toContain('Nie znaleziono');
     });
 
     it('should handle malformed URLs gracefully', async () => {
@@ -151,7 +157,9 @@ describe('Server E2E', () => {
         .get('/%invalid%url?token=test-token')
         .expect(404);
 
-      expect(response.text).toBe('Nie znaleziono');
+      // The 404 page now returns HTML instead of plain text
+      expect(response.text).toContain('404');
+      expect(response.text).toContain('Nie znaleziono');
     });
   });
 
@@ -159,14 +167,17 @@ describe('Server E2E', () => {
     it('should handle multiple concurrent requests', async () => {
       const requests = Array(3).fill(null).map(() =>
         request(server)
-          .get('/computers?token=test-token')
+          .get('/api/computers?token=test-token')
           .expect(200)
       );
 
       const responses = await Promise.all(requests);
       
       responses.forEach(response => {
-        expect(response.body).toEqual(['testpc1', 'testpc2']);
+        expect(response.body).toEqual([
+          { name: 'testpc1', id: 'testpc1' },
+          { name: 'testpc2', id: 'testpc2' }
+        ]);
       });
     });
   });

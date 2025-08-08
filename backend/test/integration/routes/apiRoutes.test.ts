@@ -37,23 +37,23 @@ describe('ApiRoutes Integration', () => {
     jest.clearAllMocks();
   });
 
-  describe('GET /computers', () => {
+  describe('GET /api/computers', () => {
     it('should return list of computers', async () => {
-      const mockReq = createMockRequest('GET', '/computers');
+      const mockReq = createMockRequest('GET', '/api/computers');
       
-      const result = await handleApiRoutes(mockReq, mockRes, '/computers', 'testuser');
+      const result = await handleApiRoutes(mockReq, mockRes, '/api/computers', 'testuser');
       
       expect(result).toBe(true);
       expect(mockRes.writeHead).toHaveBeenCalledWith(200, { 'Content-Type': 'application/json' });
-      expect(mockRes.end).toHaveBeenCalledWith('["testpc1","testpc2"]');
+      expect(mockRes.end).toHaveBeenCalledWith('[{"name":"testpc1","id":"testpc1"},{"name":"testpc2","id":"testpc2"}]');
     });
   });
 
-  describe('GET /user', () => {
+  describe('GET /api/user', () => {
     it('should return user information', async () => {
-      const mockReq = createMockRequest('GET', '/user');
+      const mockReq = createMockRequest('GET', '/api/user');
       
-      const result = await handleApiRoutes(mockReq, mockRes, '/user', 'testuser');
+      const result = await handleApiRoutes(mockReq, mockRes, '/api/user', 'testuser');
       
       expect(result).toBe(true);
       expect(mockRes.writeHead).toHaveBeenCalledWith(200, { 'Content-Type': 'application/json' });
@@ -61,16 +61,16 @@ describe('ApiRoutes Integration', () => {
     });
   });
 
-  describe('GET /wake', () => {
+  describe('GET /api/wake', () => {
     it('should handle successful wake-on-LAN', async () => {
       const wol = require('wake_on_lan');
       wol.wake.mockImplementation((mac: string, options: any, callback: (err: Error | null) => void) => {
         callback(null); // success
       });
 
-      const mockReq = createMockRequest('GET', '/wake?computer=testpc1');
+      const mockReq = createMockRequest('GET', '/api/wake?computer=testpc1');
       
-      const result = await handleApiRoutes(mockReq, mockRes, '/wake', 'testuser');
+      const result = await handleApiRoutes(mockReq, mockRes, '/api/wake', 'testuser');
       
       expect(result).toBe(true);
       expect(mockRes.writeHead).toHaveBeenCalledWith(200, { 'Content-Type': 'text/plain' });
@@ -78,9 +78,9 @@ describe('ApiRoutes Integration', () => {
     });
 
     it('should handle invalid computer', async () => {
-      const mockReq = createMockRequest('GET', '/wake?computer=invalid');
+      const mockReq = createMockRequest('GET', '/api/wake?computer=invalid');
       
-      const result = await handleApiRoutes(mockReq, mockRes, '/wake', 'testuser');
+      const result = await handleApiRoutes(mockReq, mockRes, '/api/wake', 'testuser');
       
       expect(result).toBe(true);
       expect(mockRes.writeHead).toHaveBeenCalledWith(400, { 'Content-Type': 'text/plain' });
@@ -93,9 +93,9 @@ describe('ApiRoutes Integration', () => {
         callback(new Error('Network error')); // failure
       });
 
-      const mockReq = createMockRequest('GET', '/wake?computer=testpc1');
+      const mockReq = createMockRequest('GET', '/api/wake?computer=testpc1');
       
-      const result = await handleApiRoutes(mockReq, mockRes, '/wake', 'testuser');
+      const result = await handleApiRoutes(mockReq, mockRes, '/api/wake', 'testuser');
       
       expect(result).toBe(true);
       expect(mockRes.writeHead).toHaveBeenCalledWith(500, { 'Content-Type': 'text/plain' });
@@ -115,9 +115,9 @@ describe('ApiRoutes Integration', () => {
     });
 
     it('should return false for POST requests', async () => {
-      const mockReq = createMockRequest('POST', '/computers');
+      const mockReq = createMockRequest('POST', '/api/computers');
       
-      const result = await handleApiRoutes(mockReq, mockRes, '/computers', 'testuser');
+      const result = await handleApiRoutes(mockReq, mockRes, '/api/computers', 'testuser');
       
       expect(result).toBe(false);
     });

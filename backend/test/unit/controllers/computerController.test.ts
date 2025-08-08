@@ -20,7 +20,7 @@ describe('ComputerController', () => {
   });
 
   describe('getComputers', () => {
-    it('should return list of computer names', () => {
+    it('should return list of computer objects', () => {
       const result = getComputers();
 
       expect(result).toBeInstanceOf(SuccessObject);
@@ -28,7 +28,10 @@ describe('ComputerController', () => {
       expect(result.getContentType()).toBe('application/json');
       
       const body = JSON.parse(result.getBody());
-      expect(body).toEqual(['testpc1', 'testpc2']);
+      expect(body).toEqual([
+        { name: 'testpc1', id: 'testpc1' },
+        { name: 'testpc2', id: 'testpc2' }
+      ]);
     });
   });
 
