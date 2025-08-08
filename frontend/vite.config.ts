@@ -7,8 +7,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: 'index.html',
-        unauthorized: 'public/unauthorized.html'
+        main: 'index.html'
       }
     }
   }

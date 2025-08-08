@@ -5,8 +5,7 @@ import { validateToken } from './middleware/auth';
 import { handlePageRoutes, handleNotFound } from './routes/pageRoutes';
 import { handleApiRoutes } from './routes/apiRoutes';
 import { handleStaticRoutes } from './routes/staticRoutes';
-import path from 'path';
-import { serveFile } from './middleware/staticFiles';
+import { PUBLIC_DIR } from './config';
 
 function createServer(): http.Server {
   const server = http.createServer(async (req: IncomingMessage, res: ServerResponse) => {
@@ -49,6 +48,7 @@ if (require.main === module) {
   const server = createServer();
   server.listen(PORT, () => {
     console.log(new Date().toISOString(), `Serwer działa na porcie ${PORT}`);
+    console.log(new Date().toISOString(), `PUBLIC_DIR: ${PUBLIC_DIR}`);
   });
 }
 

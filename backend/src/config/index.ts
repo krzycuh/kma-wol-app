@@ -1,3 +1,5 @@
+import path from 'path';
+
 // Parse tokens from environment variable
 export type TokenMap = { [token: string]: string };
 export const VALID_TOKENS: TokenMap = {};
@@ -19,4 +21,12 @@ export const COMPUTERS: Computer[] = (process.env.COMPUTERS || '')
   .filter(c => c.name && c.mac);
 
 export const PORT = parseInt(process.env.PORT || '3000', 10);
-export const PUBLIC_DIR = '../frontend/dist'; 
+
+const getPublicDir = () => {
+  // Użyj zmiennej środowiskowej lub domyślnej ścieżki
+  const cwd = process.env.NODE_CWD || process.cwd();
+  
+  return path.join(cwd, '..', 'frontend', 'dist');
+};
+
+export const PUBLIC_DIR = getPublicDir(); 

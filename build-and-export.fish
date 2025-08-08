@@ -8,13 +8,12 @@ set EXPORT_FILE "target/kma-wol-app-arm.tar"
 # Upewnij się, że masz buildx
 docker buildx create --use 2>/dev/null
 
-# Buduj obraz dla ARM64 i eksportuj do lokalnego dockera z cache
+# Buduj obraz dla ARM64 bez cache'owania
 docker buildx build \
   --platform linux/arm64 \
   -t $IMAGE_NAME \
   --load \
-  --cache-from=type=local,src=.buildx-cache \
-  --cache-to=type=local,dest=.buildx-cache,mode=max \
+  --no-cache \
   .
 
 # Eksportuj obraz do pliku tar

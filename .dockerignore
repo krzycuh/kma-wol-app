@@ -123,7 +123,7 @@ docker-compose.*.yml
 
 # Build and deployment scripts
 build-and-export.fish
-copy-and-load.fish
+copy-and-load-to-rpi.fish
 
 # Git
 .git/
