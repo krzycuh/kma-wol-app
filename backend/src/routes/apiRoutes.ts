@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { getComputers, wakeComputer } from '../controllers/computerController';
+import { getComputers, wakeComputer, pingComputer } from '../controllers/computerController';
 import { getUserInfo } from '../controllers/userController';
 
 async function sendResponse(res: ServerResponse, result: any): Promise<void> {
@@ -42,6 +42,14 @@ export async function handleApiRoutes(
     console.log(new Date().toISOString(), '[', user, ']', '/api/wake', result);
     await sendResponse(res, result);
     return true; 
+  }
+
+  // Ping komputera
+  if (req.method === 'GET' && pathname === '/api/ping') {
+    const result = pingComputer(req.url || '/', user);
+    console.log(new Date().toISOString(), '[', user, ']', '/api/ping', result);
+    await sendResponse(res, result);
+    return true;
   }
 
   return false;

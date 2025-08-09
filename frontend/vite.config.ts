@@ -10,5 +10,10 @@ export default defineConfig({
         main: 'index.html'
       }
     }
+  },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3000'
+    }
   }
 })

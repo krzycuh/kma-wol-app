@@ -1,6 +1,7 @@
 export interface Computer {
   name: string;
   id: string;
+  ip?: string;
   // Można dodać inne pola w przyszłości
   // location?: string;
   // description?: string;
@@ -10,6 +11,9 @@ export interface Computer {
 export interface ComputerCardProps {
   computer: Computer;
   onWake: (computer: Computer) => void;
+  onPing: (
+    computer: Computer
+  ) => Promise<{ status: 'online' | 'offline'; message: string } | null>;
   isExpanded: boolean;
   onToggleExpand: () => void;
 }

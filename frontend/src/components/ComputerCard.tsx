@@ -9,6 +9,7 @@ import {
   IconButton,
   Collapse
 } from '@mui/material';
+import { useState } from 'react';
 import { 
   PowerSettingsNew, 
   ExpandMore, 
@@ -20,7 +21,26 @@ import {
 } from '@mui/icons-material';
 import type { ComputerCardProps } from '../types';
 
-export function ComputerCard({ computer, onWake, isExpanded, onToggleExpand }: ComputerCardProps) {
+export function ComputerCard({ computer, onWake, onPing, isExpanded, onToggleExpand }: ComputerCardProps) {
+  const [isPinging, setIsPinging] = useState(false);
+  const [pingStatus, setPingStatus] = useState<'online' | 'offline' | null>(null);
+  const [pingMessage, setPingMessage] = useState<string>('');
+
+  const handlePingClick = async () => {
+    setIsPinging(true);
+    try {
+      const result = await onPing(computer);
+      if (result) {
+        setPingStatus(result.status);
+        setPingMessage(result.message);
+      } else {
+        setPingStatus(null);
+        setPingMessage('');
+      }
+    } finally {
+      setIsPinging(false);
+    }
+  };
   return (
     <Card 
       className="w-full max-w-md bg-white/90 backdrop-blur-sm border border-gray-200 hover:border-purple-300 transition-all duration-300 shadow-lg hover:shadow-xl"
@@ -55,8 +75,24 @@ export function ComputerCard({ computer, onWake, isExpanded, onToggleExpand }: C
             <Box className="flex flex-wrap gap-2">
               <Chip 
                 icon={<NetworkCheck />} 
-                label="Online" 
-                color="success" 
+                label={
+                  isPinging
+                    ? 'Sprawdzanie…'
+                    : pingStatus === 'online'
+                      ? 'Online'
+                      : pingStatus === 'offline'
+                        ? 'Offline'
+                        : 'Nie sprawdzono'
+                }
+                color={
+                  isPinging
+                    ? 'info'
+                    : pingStatus === 'online'
+                      ? 'success'
+                      : pingStatus === 'offline'
+                        ? 'error'
+                        : 'default'
+                }
                 size="small" 
                 variant="outlined"
               />
@@ -76,14 +112,26 @@ export function ComputerCard({ computer, onWake, isExpanded, onToggleExpand }: C
               />
             </Box>
             
-            <Typography variant="body2" className="text-gray-500">
-              Ostatnia aktywność: 2 minuty temu
-            </Typography>
+            {pingMessage && (
+              <Typography variant="body2" className="text-gray-500">
+                {pingMessage}
+              </Typography>
+            )}
           </Box>
         </CardContent>
       </Collapse>
 
       <CardActions className="pt-0">
+        <Button
+          variant="outlined"
+          startIcon={<NetworkCheck />}
+          onClick={handlePingClick}
+          className="w-full border-purple-600 text-purple-600 hover:border-purple-700 hover:text-purple-700"
+          size="large"
+          disabled={isPinging}
+        >
+          {isPinging ? 'Sprawdzanie…' : 'Sprawdź ping'}
+        </Button>
         <Button
           variant="contained"
           startIcon={<PowerSettingsNew />}

@@ -15,7 +15,8 @@ export const useAppState = () => {
     hideSnackbar,
     checkAuth,
     fetchComputers,
-    wakeComputer
+    wakeComputer,
+    pingComputer
   } = useApi();
 
   useEffect(() => {
@@ -59,6 +60,14 @@ export const useAppState = () => {
     await wakeComputer(computer, token);
   };
 
+  const handlePingComputer = async (computer: Computer) => {
+    if (!token) {
+      return null;
+    }
+
+    return await pingComputer(computer, token);
+  };
+
   return {
     computers,
     user,
@@ -68,6 +77,7 @@ export const useAppState = () => {
     snackbar,
     isInitialized,
     hideSnackbar,
-    handleWakeComputer
+    handleWakeComputer,
+    handlePingComputer
   };
 };

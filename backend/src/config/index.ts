@@ -11,12 +11,13 @@ export const VALID_TOKENS: TokenMap = {};
     if (token && name) VALID_TOKENS[token] = name;
   });
 
-export type Computer = { name: string; mac: string };
+export type Computer = { name: string; mac: string; ip?: string };
 export const COMPUTERS: Computer[] = (process.env.COMPUTERS || '')
   .split(',')
   .map(pair => {
-    const [name, mac] = pair.split('->');
-    return { name, mac };
+    const [name, rest] = pair.split('->');
+    const [mac, ip] = rest ? rest.split('|') : ['', ''];
+    return { name, mac, ...(ip && { ip }) };
   })
   .filter(c => c.name && c.mac);
 

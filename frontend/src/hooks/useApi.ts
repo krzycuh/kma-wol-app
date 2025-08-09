@@ -86,6 +86,29 @@ export const useApi = () => {
     }
   }, [showSnackbar]);
 
+  const pingComputer = useCallback(async (computer: Computer, token: string): Promise<{ status: 'online' | 'offline'; message: string } | null> => {
+    try {
+      const response = await fetch(`/api/ping?computer=${computer.name}&token=${token}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        return {
+          status: data.status,
+          message: data.message
+        };
+      } else {
+        showSnackbar(
+          data.error || 'Błąd podczas sprawdzania dostępności',
+          'error'
+        );
+        return null;
+      }
+    } catch (err) {
+      showSnackbar('Błąd połączenia z serwerem', 'error');
+      return null;
+    }
+  }, [showSnackbar]);
+
   return {
     loading,
     error,
@@ -94,6 +117,7 @@ export const useApi = () => {
     hideSnackbar,
     checkAuth,
     fetchComputers,
-    wakeComputer
+    wakeComputer,
+    pingComputer
   };
 };

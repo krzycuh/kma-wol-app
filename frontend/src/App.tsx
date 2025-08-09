@@ -17,7 +17,8 @@ function App() {
     snackbar,
     isInitialized,
     hideSnackbar,
-    handleWakeComputer
+    handleWakeComputer,
+    handlePingComputer
   } = useAppState();
 
   // Loading screen
@@ -49,7 +50,8 @@ function App() {
           ) : (
             <ComputerList 
               computers={computers} 
-              onWake={handleWakeComputer} 
+              onWake={handleWakeComputer}
+              onPing={handlePingComputer}
             />
           )}
         </Box>
