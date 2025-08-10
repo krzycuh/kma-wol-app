@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { Computer } from '@mui/icons-material';
 import type { Computer as ComputerType } from '../types';
@@ -14,17 +13,6 @@ interface ComputerListProps {
 }
 
 export function ComputerList({ computers, onWake, onPing, onShutdown }: ComputerListProps) {
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
-
-  const toggleCardExpansion = (computerName: string) => {
-    const newExpanded = new Set(expandedCards);
-    if (newExpanded.has(computerName)) {
-      newExpanded.delete(computerName);
-    } else {
-      newExpanded.add(computerName);
-    }
-    setExpandedCards(newExpanded);
-  };
 
   if (computers.length === 0) {
     return (
@@ -49,8 +37,6 @@ export function ComputerList({ computers, onWake, onPing, onShutdown }: Computer
           onWake={onWake}
           onPing={onPing}
           onShutdown={onShutdown}
-          isExpanded={expandedCards.has(computer.name)}
-          onToggleExpand={() => toggleCardExpansion(computer.name)}
         />
       ))}
     </Box>
