@@ -54,16 +54,14 @@ export async function handleApiRoutes(
 
   // Wyłączenie komputera Windows
   if (req.method === 'GET' && pathname === '/api/shutdown') {
-    const result = shutdownComputer(req.url || '/', user);
-    console.log(new Date().toISOString(), '[', user, ']', '/api/shutdown', result);
+    const result = await shutdownComputer(req.url || '/', user);
     await sendResponse(res, result);
     return true;
   }
 
   // Logi komputera (ostatnie N wpisów)
   if (req.method === 'GET' && pathname === '/api/logs') {
-    const result = getComputerLogsController(req.url || '/', user);
-    console.log(new Date().toISOString(), '[', user, ']', '/api/logs', result);
+    const result = await getComputerLogsController(req.url || '/', user);
     await sendResponse(res, result);
     return true;
   }

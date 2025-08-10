@@ -149,6 +149,8 @@ export function shutdownComputer(url: string, user: string): Promise<ControllerR
     console.log(new Date().toISOString(), '[', user, ']', `Żądanie wyłączenia komputera ${computer.name}`);
 
     const conn = new SshClient();
+    let commandExecuted = false;
+
     conn
       .on('ready', () => {
         conn.exec('shutdown /s /t 0', (err: unknown, stream: any) => {
@@ -158,50 +160,41 @@ export function shutdownComputer(url: string, user: string): Promise<ControllerR
             resolve(new Error('Błąd wyłączania komputera'));
             return;
           }
-          stream
-            .on('close', (code: number) => {
-              conn.end();
-              if (code === 0) {
-                console.log(new Date().toISOString(), '[', user, ']', `Wysłano polecenie wyłączenia do komputera ${computer.name}`);
-                logComputerEvent(computer.name, {
-                  user,
-                  action: 'shutdown',
-                  status: 'success',
-                  message: 'Wysłano shutdown'
-                });
-                resolve(new SuccessMessage(`Wysłano polecenie wyłączenia do komputera ${computer.name}`));
-              } else {
-                console.error(new Date().toISOString(), '[', user, ']', `Błąd wyłączania ${computer.name}, kod: ${code}`);
-                logComputerEvent(computer.name, {
-                  user,
-                  action: 'shutdown',
-                  status: 'error',
-                  message: `Kod ${code}`
-                });
-                resolve(new Error('Błąd wyłączania komputera'));
-              }
-            })
-            .stderr.on('data', () => {
-              // Ignoruj szczegóły błędu w logach (bez IP/hasła/username)
-            });
+          
+          commandExecuted = true;
+          console.log(new Date().toISOString(), '[', user, ']', `Wysłano polecenie wyłączenia do komputera ${computer.name}`);
+          
+          // Zakończ połączenie natychmiast po wysłaniu komendy
+          conn.end();
+          
+          logComputerEvent(computer.name, {
+            user,
+            action: 'shutdown',
+            status: 'success',
+            message: 'Wysłano shutdown'
+          });
+          resolve(new SuccessMessage(`Wysłano polecenie wyłączenia do komputera ${computer.name}`));
         });
       })
       .on('error', (_e: unknown) => {
-        console.error(new Date().toISOString(), '[', user, ']', `Błąd połączenia SSH z ${computer.name}`);
-        logComputerEvent(computer.name, {
-          user,
-          action: 'shutdown',
-          status: 'error',
-          message: 'Błąd połączenia SSH'
-        });
-        resolve(new Error('Błąd połączenia SSH'));
+        if (!commandExecuted) {
+          console.error(new Date().toISOString(), '[', user, ']', `Błąd połączenia SSH z ${computer.name}`);
+          logComputerEvent(computer.name, {
+            user,
+            action: 'shutdown',
+            status: 'error',
+            message: 'Błąd połączenia SSH'
+          });
+          resolve(new Error('Błąd połączenia SSH'));
+        }
+        // Jeśli komenda została już wykonana, ignoruj błąd (normalny przy shutdown)
       })
       .connect({
         host: computer.ip,
         port: 22,
         username,
         password,
-        readyTimeout: 7000
+        readyTimeout: 5000  // Krótszy timeout
       });
   });
 }
