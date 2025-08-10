@@ -7,7 +7,7 @@ import {
   Box, 
   Chip
 } from '@mui/material';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { 
   PowerSettingsNew, 
   Computer,
@@ -15,11 +15,13 @@ import {
   Refresh
 } from '@mui/icons-material';
 import type { ComputerCardProps } from '../types';
+import { ComputerLogs, type ComputerLogsRef } from './ComputerLogs';
 
-export function ComputerCard({ computer, onWake, onPing, onShutdown }: ComputerCardProps) {
+export function ComputerCard({ computer, onWake, onPing, onShutdown, onGetLogs }: ComputerCardProps) {
   const [isPinging, setIsPinging] = useState(false);
   const [pingStatus, setPingStatus] = useState<'online' | 'offline' | null>(null);
   const [isShuttingDown, setIsShuttingDown] = useState(false);
+  const logsRef = useRef<ComputerLogsRef>(null);
 
   const handlePingClick = async () => {
     setIsPinging(true);
@@ -30,6 +32,8 @@ export function ComputerCard({ computer, onWake, onPing, onShutdown }: ComputerC
       } else {
         setPingStatus(null);
       }
+      // Odśwież logi po akcji
+      await logsRef.current?.refreshLogs();
     } finally {
       setIsPinging(false);
     }
@@ -76,7 +80,6 @@ export function ComputerCard({ computer, onWake, onPing, onShutdown }: ComputerC
               onDelete={handlePingClick}
               deleteIcon={<Refresh fontSize="small" />}
             />
-            {/* refresh icon handled inside Chip via deleteIcon */}
           </Box>
         </Box>
       </CardContent>
@@ -97,6 +100,8 @@ export function ComputerCard({ computer, onWake, onPing, onShutdown }: ComputerC
             setIsShuttingDown(true);
             try {
               await onShutdown(computer);
+              // Odśwież logi po akcji
+              await logsRef.current?.refreshLogs();
             } finally {
               setIsShuttingDown(false);
             }
@@ -110,13 +115,26 @@ export function ComputerCard({ computer, onWake, onPing, onShutdown }: ComputerC
         <Button
           variant="contained"
           startIcon={<PowerSettingsNew />}
-          onClick={() => onWake(computer)}
+          onClick={async () => {
+            await onWake(computer);
+            // Odśwież logi po akcji
+            await logsRef.current?.refreshLogs();
+          }}
           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-2"
           size="large"
         >
           Włącz
         </Button>
       </CardActions>
+
+      {/* Komponent logów na dole karty */}
+      <CardContent sx={{ px: 2, pt: 2 }}>
+        <ComputerLogs 
+          ref={logsRef}
+          computer={computer} 
+          onGetLogs={onGetLogs} 
+        />
+      </CardContent>
     </Card>
   );
 }

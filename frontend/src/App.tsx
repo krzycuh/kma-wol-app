@@ -19,7 +19,8 @@ function App() {
     hideSnackbar,
     handleWakeComputer,
     handlePingComputer,
-    handleShutdownComputer
+    handleShutdownComputer,
+    handleGetComputerLogs
   } = useAppState();
 
   // Loading screen
@@ -54,6 +55,7 @@ function App() {
               onWake={handleWakeComputer}
               onPing={handlePingComputer}
               onShutdown={handleShutdownComputer}
+              onGetLogs={handleGetComputerLogs}
             />
           )}
         </Box>

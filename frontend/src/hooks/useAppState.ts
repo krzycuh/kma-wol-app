@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Computer } from '../types';
+import type { Computer, ComputerLog } from '../types';
 import { useApi } from './useApi';
 
 export const useAppState = () => {
@@ -17,7 +17,8 @@ export const useAppState = () => {
     fetchComputers,
     wakeComputer,
     pingComputer,
-    shutdownComputer
+    shutdownComputer,
+    getComputerLogs
   } = useApi();
 
   useEffect(() => {
@@ -76,6 +77,13 @@ export const useAppState = () => {
     return await shutdownComputer(computer, token);
   };
 
+  const handleGetComputerLogs = async (computer: Computer, limit: number = 5): Promise<ComputerLog[]> => {
+    if (!token) {
+      return [];
+    }
+    return await getComputerLogs(computer, token, limit);
+  };
+
   return {
     computers,
     user,
@@ -87,6 +95,7 @@ export const useAppState = () => {
     hideSnackbar,
     handleWakeComputer,
     handlePingComputer,
-    handleShutdownComputer
+    handleShutdownComputer,
+    handleGetComputerLogs
   };
 };

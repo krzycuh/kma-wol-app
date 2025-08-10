@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { Computer, SnackbarState } from '../types';
+import type { Computer, SnackbarState, ComputerLog } from '../types';
 
 export const useApi = () => {
   const [loading, setLoading] = useState(false);
@@ -65,19 +65,32 @@ export const useApi = () => {
   const wakeComputer = useCallback(async (computer: Computer, token: string): Promise<boolean> => {
     try {
       const response = await fetch(`/api/wake?computer=${computer.name}&token=${token}`);
-      const data = await response.json();
       
       if (response.ok) {
-        showSnackbar(
-          data.message || `Wysłano Wake-on-LAN do ${computer.name}`,
-          'success'
-        );
+        const contentType = response.headers.get('content-type');
+        let message: string;
+        
+        if (contentType?.includes('application/json')) {
+          const data = await response.json();
+          message = data.message || `Wysłano Wake-on-LAN do ${computer.name}`;
+        } else {
+          message = await response.text();
+        }
+        
+        showSnackbar(message, 'success');
         return true;
       } else {
-        showSnackbar(
-          data.error || 'Błąd podczas wysyłania Wake-on-LAN',
-          'error'
-        );
+        const contentType = response.headers.get('content-type');
+        let errorMessage: string;
+        
+        if (contentType?.includes('application/json')) {
+          const data = await response.json();
+          errorMessage = data.error || 'Błąd podczas wysyłania Wake-on-LAN';
+        } else {
+          errorMessage = await response.text();
+        }
+        
+        showSnackbar(errorMessage, 'error');
         return false;
       }
     } catch (err) {
@@ -132,6 +145,23 @@ export const useApi = () => {
     }
   }, [showSnackbar]);
 
+  const getComputerLogs = useCallback(async (computer: Computer, token: string, limit: number = 5): Promise<ComputerLog[]> => {
+    try {
+      const response = await fetch(`/api/logs?computer=${computer.name}&limit=${limit}&token=${token}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        return data || [];
+      } else {
+        console.error('Error fetching logs:', data.error);
+        return [];
+      }
+    } catch (err) {
+      console.error('Error fetching logs:', err);
+      return [];
+    }
+  }, []);
+
   return {
     loading,
     error,
@@ -142,6 +172,7 @@ export const useApi = () => {
     fetchComputers,
     wakeComputer,
     pingComputer,
-    shutdownComputer
+    shutdownComputer,
+    getComputerLogs
   };
 };

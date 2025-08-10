@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { Computer } from '@mui/icons-material';
-import type { Computer as ComputerType } from '../types';
+import type { Computer as ComputerType, ComputerLog } from '../types';
 import { ComputerCard } from './ComputerCard';
 
 interface ComputerListProps {
@@ -10,9 +10,10 @@ interface ComputerListProps {
     computer: ComputerType
   ) => Promise<{ status: 'online' | 'offline'; message: string } | null>;
   onShutdown: (computer: ComputerType) => Promise<boolean>;
+  onGetLogs: (computer: ComputerType, limit?: number) => Promise<ComputerLog[]>;
 }
 
-export function ComputerList({ computers, onWake, onPing, onShutdown }: ComputerListProps) {
+export function ComputerList({ computers, onWake, onPing, onShutdown, onGetLogs }: ComputerListProps) {
 
   if (computers.length === 0) {
     return (
@@ -37,6 +38,7 @@ export function ComputerList({ computers, onWake, onPing, onShutdown }: Computer
           onWake={onWake}
           onPing={onPing}
           onShutdown={onShutdown}
+          onGetLogs={onGetLogs}
         />
       ))}
     </Box>

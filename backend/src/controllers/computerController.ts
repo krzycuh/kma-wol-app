@@ -4,6 +4,7 @@ import { Client as SshClient } from 'ssh2';
 import { COMPUTERS } from '../config';
 import { getQueryParam } from '../utils/urlParser';
 import { ControllerResult, SuccessObject, SuccessMessage, Error } from '../utils/ControllerResult';
+import { logComputerEvent, getComputerLogs } from '../utils/logger';
 
 export function getComputers(): ControllerResult {
   // Zwracamy obiekty komputerów bez wrażliwych danych jak MAC adresy
@@ -32,12 +33,24 @@ export function wakeComputer(url: string, user: string): Promise<ControllerResul
       return;
     }
 
-    wol.wake(computer.mac, { address: '255.255.255.255', port: 9 }, (err: Error | null) => {
+    wol.wake(computer.mac, { address: '255.255.255.255', port: 9 }, async (err: Error | null) => {
       if (err) {
         console.error(new Date().toISOString(), '[', user, ']', 'Błąd WoL:', err);
+        await logComputerEvent(computer.name, {
+          user,
+          action: 'wake',
+          status: 'error',
+          message: 'Błąd wysłania WoL'
+        });
         resolve(new Error('Błąd wysłania Wake-on-LAN'));
       } else {
         console.log(new Date().toISOString(), '[', user, ']', `Wysłano WoL do ${computer.mac} (${computer.name}) przez użytkownika: ${user}`);
+        await logComputerEvent(computer.name, {
+          user,
+          action: 'wake',
+          status: 'success',
+          message: 'Wysłano WoL'
+        });
         resolve(new SuccessMessage(`Wysłano magiczny pakiet WoL do ${computer.name} przez użytkownika: ${user}`));
       }
     });
@@ -73,9 +86,15 @@ export function pingComputer(url: string, user: string): Promise<ControllerResul
 
     console.log(new Date().toISOString(), '[', user, ']', `Sprawdzanie dostępności ${computer.name} (${computer.ip})`);
 
-    exec(pingCmd, (error, stdout, stderr) => {
+    exec(pingCmd, async (error) => {
       if (error) {
         console.log(new Date().toISOString(), '[', user, ']', `${computer.name} (${computer.ip}) - OFFLINE`);
+        await logComputerEvent(computer.name, {
+          user,
+          action: 'ping',
+          status: 'offline',
+          message: 'Host niedostępny'
+        });
         resolve(new SuccessObject({ 
           computer: computer.name, 
           ip: computer.ip, 
@@ -84,6 +103,12 @@ export function pingComputer(url: string, user: string): Promise<ControllerResul
         }));
       } else {
         console.log(new Date().toISOString(), '[', user, ']', `${computer.name} (${computer.ip}) - ONLINE`);
+        await logComputerEvent(computer.name, {
+          user,
+          action: 'ping',
+          status: 'online',
+          message: 'Host dostępny'
+        });
         resolve(new SuccessObject({ 
           computer: computer.name, 
           ip: computer.ip, 
@@ -138,9 +163,21 @@ export function shutdownComputer(url: string, user: string): Promise<ControllerR
               conn.end();
               if (code === 0) {
                 console.log(new Date().toISOString(), '[', user, ']', `Wysłano polecenie wyłączenia do komputera ${computer.name}`);
+                logComputerEvent(computer.name, {
+                  user,
+                  action: 'shutdown',
+                  status: 'success',
+                  message: 'Wysłano shutdown'
+                });
                 resolve(new SuccessMessage(`Wysłano polecenie wyłączenia do komputera ${computer.name}`));
               } else {
                 console.error(new Date().toISOString(), '[', user, ']', `Błąd wyłączania ${computer.name}, kod: ${code}`);
+                logComputerEvent(computer.name, {
+                  user,
+                  action: 'shutdown',
+                  status: 'error',
+                  message: `Kod ${code}`
+                });
                 resolve(new Error('Błąd wyłączania komputera'));
               }
             })
@@ -151,6 +188,12 @@ export function shutdownComputer(url: string, user: string): Promise<ControllerR
       })
       .on('error', (_e: unknown) => {
         console.error(new Date().toISOString(), '[', user, ']', `Błąd połączenia SSH z ${computer.name}`);
+        logComputerEvent(computer.name, {
+          user,
+          action: 'shutdown',
+          status: 'error',
+          message: 'Błąd połączenia SSH'
+        });
         resolve(new Error('Błąd połączenia SSH'));
       })
       .connect({
@@ -160,5 +203,37 @@ export function shutdownComputer(url: string, user: string): Promise<ControllerR
         password,
         readyTimeout: 7000
       });
+  });
+}
+
+export function getComputerLogsController(url: string, user: string): Promise<ControllerResult> {
+  return new Promise(async (resolve) => {
+    const computerId = getQueryParam(url, 'computer');
+    if (!computerId) {
+      resolve(new Error('Nieprawidłowy komputer', 400));
+      return;
+    }
+    
+    const computer = COMPUTERS.find(c => c.name === computerId || c.mac === computerId);
+    if (!computer) {
+      resolve(new Error('Nieprawidłowy komputer', 400));
+      return;
+    }
+
+    const limitParam = getQueryParam(url, 'limit');
+    const limit = limitParam ? parseInt(limitParam, 10) : 10;
+    
+    if (isNaN(limit) || limit < 1 || limit > 100) {
+      resolve(new Error('Nieprawidłowy limit (1-100)', 400));
+      return;
+    }
+
+    try {
+      const logs = await getComputerLogs(computer.name, limit);
+      resolve(new SuccessObject(logs));
+    } catch (err) {
+      console.error(new Date().toISOString(), '[', user, ']', `Błąd pobierania logów dla ${computer.name}:`, err);
+      resolve(new Error('Błąd pobierania logów'));
+    }
   });
 }

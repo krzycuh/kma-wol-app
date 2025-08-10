@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { getComputers, wakeComputer, pingComputer, shutdownComputer } from '../controllers/computerController';
+import { getComputers, wakeComputer, pingComputer, shutdownComputer, getComputerLogsController } from '../controllers/computerController';
 import { getUserInfo } from '../controllers/userController';
 
 async function sendResponse(res: ServerResponse, result: any): Promise<void> {
@@ -56,6 +56,14 @@ export async function handleApiRoutes(
   if (req.method === 'GET' && pathname === '/api/shutdown') {
     const result = shutdownComputer(req.url || '/', user);
     console.log(new Date().toISOString(), '[', user, ']', '/api/shutdown', result);
+    await sendResponse(res, result);
+    return true;
+  }
+
+  // Logi komputera (ostatnie N wpisów)
+  if (req.method === 'GET' && pathname === '/api/logs') {
+    const result = getComputerLogsController(req.url || '/', user);
+    console.log(new Date().toISOString(), '[', user, ']', '/api/logs', result);
     await sendResponse(res, result);
     return true;
   }
