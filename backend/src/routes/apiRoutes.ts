@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { getComputers, wakeComputer, pingComputer } from '../controllers/computerController';
+import { getComputers, wakeComputer, pingComputer, shutdownComputer } from '../controllers/computerController';
 import { getUserInfo } from '../controllers/userController';
 
 async function sendResponse(res: ServerResponse, result: any): Promise<void> {
@@ -48,6 +48,14 @@ export async function handleApiRoutes(
   if (req.method === 'GET' && pathname === '/api/ping') {
     const result = pingComputer(req.url || '/', user);
     console.log(new Date().toISOString(), '[', user, ']', '/api/ping', result);
+    await sendResponse(res, result);
+    return true;
+  }
+
+  // Wyłączenie komputera Windows
+  if (req.method === 'GET' && pathname === '/api/shutdown') {
+    const result = shutdownComputer(req.url || '/', user);
+    console.log(new Date().toISOString(), '[', user, ']', '/api/shutdown', result);
     await sendResponse(res, result);
     return true;
   }

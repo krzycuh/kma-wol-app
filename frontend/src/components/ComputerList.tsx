@@ -10,9 +10,10 @@ interface ComputerListProps {
   onPing: (
     computer: ComputerType
   ) => Promise<{ status: 'online' | 'offline'; message: string } | null>;
+  onShutdown: (computer: ComputerType) => Promise<boolean>;
 }
 
-export function ComputerList({ computers, onWake, onPing }: ComputerListProps) {
+export function ComputerList({ computers, onWake, onPing, onShutdown }: ComputerListProps) {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   const toggleCardExpansion = (computerName: string) => {
@@ -47,6 +48,7 @@ export function ComputerList({ computers, onWake, onPing }: ComputerListProps) {
           computer={computer}
           onWake={onWake}
           onPing={onPing}
+          onShutdown={onShutdown}
           isExpanded={expandedCards.has(computer.name)}
           onToggleExpand={() => toggleCardExpansion(computer.name)}
         />

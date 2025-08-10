@@ -21,10 +21,11 @@ import {
 } from '@mui/icons-material';
 import type { ComputerCardProps } from '../types';
 
-export function ComputerCard({ computer, onWake, onPing, isExpanded, onToggleExpand }: ComputerCardProps) {
+export function ComputerCard({ computer, onWake, onPing, onShutdown, isExpanded, onToggleExpand }: ComputerCardProps) {
   const [isPinging, setIsPinging] = useState(false);
   const [pingStatus, setPingStatus] = useState<'online' | 'offline' | null>(null);
   const [pingMessage, setPingMessage] = useState<string>('');
+  const [isShuttingDown, setIsShuttingDown] = useState(false);
 
   const handlePingClick = async () => {
     setIsPinging(true);
@@ -122,6 +123,22 @@ export function ComputerCard({ computer, onWake, onPing, isExpanded, onToggleExp
       </Collapse>
 
       <CardActions className="pt-0">
+        <Button
+          variant="outlined"
+          onClick={async () => {
+            setIsShuttingDown(true);
+            try {
+              await onShutdown(computer);
+            } finally {
+              setIsShuttingDown(false);
+            }
+          }}
+          className="w-full border-red-600 text-red-600 hover:border-red-700 hover:text-red-700"
+          size="large"
+          disabled={isShuttingDown}
+        >
+          {isShuttingDown ? 'Wyłączanie…' : 'Wyłącz'}
+        </Button>
         <Button
           variant="outlined"
           startIcon={<NetworkCheck />}

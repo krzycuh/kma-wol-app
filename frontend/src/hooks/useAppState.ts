@@ -16,7 +16,8 @@ export const useAppState = () => {
     checkAuth,
     fetchComputers,
     wakeComputer,
-    pingComputer
+    pingComputer,
+    shutdownComputer
   } = useApi();
 
   useEffect(() => {
@@ -68,6 +69,13 @@ export const useAppState = () => {
     return await pingComputer(computer, token);
   };
 
+  const handleShutdownComputer = async (computer: Computer) => {
+    if (!token) {
+      return false;
+    }
+    return await shutdownComputer(computer, token);
+  };
+
   return {
     computers,
     user,
@@ -78,6 +86,7 @@ export const useAppState = () => {
     isInitialized,
     hideSnackbar,
     handleWakeComputer,
-    handlePingComputer
+    handlePingComputer,
+    handleShutdownComputer
   };
 };

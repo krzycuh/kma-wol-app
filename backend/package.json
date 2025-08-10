@@ -5,7 +5,8 @@
   "main": "dist/src/server.js",
   "dependencies": {
     "dotenv": "^17.2.0",
-    "wake_on_lan": "^1.0.0"
+    "wake_on_lan": "^1.0.0",
+    "ssh2": "^1.15.0"
   },
   "scripts": {
     "build": "tsc",

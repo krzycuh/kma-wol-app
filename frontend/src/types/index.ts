@@ -14,6 +14,7 @@ export interface ComputerCardProps {
   onPing: (
     computer: Computer
   ) => Promise<{ status: 'online' | 'offline'; message: string } | null>;
+  onShutdown: (computer: Computer) => Promise<boolean>;
   isExpanded: boolean;
   onToggleExpand: () => void;
 }

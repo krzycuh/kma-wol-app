@@ -11,13 +11,25 @@ export const VALID_TOKENS: TokenMap = {};
     if (token && name) VALID_TOKENS[token] = name;
   });
 
-export type Computer = { name: string; mac: string; ip?: string };
+export type Computer = {
+  name: string;
+  mac: string;
+  ip?: string;
+  sshUsername?: string;
+  sshPassword?: string;
+};
 export const COMPUTERS: Computer[] = (process.env.COMPUTERS || '')
   .split(',')
   .map(pair => {
     const [name, rest] = pair.split('->');
-    const [mac, ip] = rest ? rest.split('|') : ['', ''];
-    return { name, mac, ...(ip && { ip }) };
+    const [mac, ip, sshUsername, sshPassword] = rest ? rest.split('|') : ['', ''];
+    return {
+      name,
+      mac,
+      ...(ip && { ip }),
+      ...(sshUsername && { sshUsername }),
+      ...(sshPassword && { sshPassword })
+    };
   })
   .filter(c => c.name && c.mac);
 

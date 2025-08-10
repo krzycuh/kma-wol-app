@@ -1,5 +1,6 @@
 import wol from 'wake_on_lan';
 import { exec } from 'child_process';
+import { Client as SshClient } from 'ssh2';
 import { COMPUTERS } from '../config';
 import { getQueryParam } from '../utils/urlParser';
 import { ControllerResult, SuccessObject, SuccessMessage, Error } from '../utils/ControllerResult';
@@ -93,3 +94,71 @@ export function pingComputer(url: string, user: string): Promise<ControllerResul
     });
   });
 } 
+
+export function shutdownComputer(url: string, user: string): Promise<ControllerResult> {
+  return new Promise((resolve) => {
+    const computerId = getQueryParam(url, 'computer');
+    if (!computerId) {
+      resolve(new Error('Nieprawidłowy komputer', 400));
+      return;
+    }
+
+    const computer = COMPUTERS.find(c => c.name === computerId || c.mac === computerId);
+    if (!computer) {
+      resolve(new Error('Nieprawidłowy komputer', 400));
+      return;
+    }
+
+    if (!computer.ip) {
+      resolve(new Error('Komputer nie ma skonfigurowanego adresu IP', 400));
+      return;
+    }
+
+    const username = computer.sshUsername;
+    const password = computer.sshPassword;
+    if (!username || !password) {
+      resolve(new Error('Brak konfiguracji SSH dla komputera (sshUsername/sshPassword)', 400));
+      return;
+    }
+
+    console.log(new Date().toISOString(), '[', user, ']', `Żądanie wyłączenia komputera ${computer.name}`);
+
+    const conn = new SshClient();
+    conn
+      .on('ready', () => {
+        conn.exec('shutdown /s /t 0', (err: unknown, stream: any) => {
+          if (err) {
+            console.error(new Date().toISOString(), '[', user, ']', `Błąd exec na ${computer.name}:`, err);
+            conn.end();
+            resolve(new Error('Błąd wyłączania komputera'));
+            return;
+          }
+          stream
+            .on('close', (code: number) => {
+              conn.end();
+              if (code === 0) {
+                console.log(new Date().toISOString(), '[', user, ']', `Wysłano polecenie wyłączenia do komputera ${computer.name}`);
+                resolve(new SuccessMessage(`Wysłano polecenie wyłączenia do komputera ${computer.name}`));
+              } else {
+                console.error(new Date().toISOString(), '[', user, ']', `Błąd wyłączania ${computer.name}, kod: ${code}`);
+                resolve(new Error('Błąd wyłączania komputera'));
+              }
+            })
+            .stderr.on('data', () => {
+              // Ignoruj szczegóły błędu w logach (bez IP/hasła/username)
+            });
+        });
+      })
+      .on('error', (_e: unknown) => {
+        console.error(new Date().toISOString(), '[', user, ']', `Błąd połączenia SSH z ${computer.name}`);
+        resolve(new Error('Błąd połączenia SSH'));
+      })
+      .connect({
+        host: computer.ip,
+        port: 22,
+        username,
+        password,
+        readyTimeout: 7000
+      });
+  });
+}

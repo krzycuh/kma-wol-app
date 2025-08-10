@@ -18,7 +18,8 @@ function App() {
     isInitialized,
     hideSnackbar,
     handleWakeComputer,
-    handlePingComputer
+    handlePingComputer,
+    handleShutdownComputer
   } = useAppState();
 
   // Loading screen
@@ -52,6 +53,7 @@ function App() {
               computers={computers} 
               onWake={handleWakeComputer}
               onPing={handlePingComputer}
+              onShutdown={handleShutdownComputer}
             />
           )}
         </Box>

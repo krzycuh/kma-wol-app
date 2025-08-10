@@ -109,6 +109,29 @@ export const useApi = () => {
     }
   }, [showSnackbar]);
 
+  const shutdownComputer = useCallback(async (computer: Computer, token: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`/api/shutdown?computer=${computer.name}&token=${token}`);
+      const data = await response.json();
+      if (response.ok) {
+        showSnackbar(
+          data.message || `Wysłano polecenie wyłączenia do ${computer.name}`,
+          'success'
+        );
+        return true;
+      } else {
+        showSnackbar(
+          data.error || `Błąd podczas wyłączania ${computer.name}`,
+          'error'
+        );
+        return false;
+      }
+    } catch (_err) {
+      showSnackbar('Błąd połączenia z serwerem', 'error');
+      return false;
+    }
+  }, [showSnackbar]);
+
   return {
     loading,
     error,
@@ -118,6 +141,7 @@ export const useApi = () => {
     checkAuth,
     fetchComputers,
     wakeComputer,
-    pingComputer
+    pingComputer,
+    shutdownComputer
   };
 };
