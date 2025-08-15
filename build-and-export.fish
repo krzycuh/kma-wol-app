@@ -26,6 +26,10 @@ end
 
 echo "=== Rozpoczynam budowanie i eksport obrazu Docker ==="
 
+# Upewnij się, że budujemy z katalogu repo (kontekst Dockera musi zawierać pliki w root)
+set SCRIPT_DIR (dirname (status -f))
+cd $SCRIPT_DIR
+
 set IMAGE_NAME "kma-wol-app:latest"
 set EXPORT_FILE "target/kma-wol-app-arm.tar"
 

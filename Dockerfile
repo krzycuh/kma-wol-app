@@ -1,40 +1,49 @@
-# Stage 1: Build
+# Stage 1: Builder (frontend + backend)
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Instalacja zależności (wszystkie, w tym devDependencies)
-COPY backend/package*.json ./
-RUN npm install
+# pnpm via corepack
+RUN corepack enable
 
-# Kopiowanie plików potrzebnych do kompilacji
-COPY backend/tsconfig.json ./
-COPY backend/src/ ./src/
+# Workspace root files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Kompilacja TypeScript
-RUN npx tsc
+# Workspace manifests (for filtered install)
+COPY backend/package.json backend/package.json
+COPY frontend/package.json frontend/package.json
 
-# Stage 2: Production
+# Install all deps (cached by lockfile)
+RUN pnpm install --frozen-lockfile
+
+# Copy sources
+COPY backend backend
+COPY frontend frontend
+
+# Build frontend and backend
+RUN pnpm --filter kma-wol-frontend build
+RUN pnpm --filter kma-wol-backend build
+
+
+# Stage 2: Runtime (production)
 FROM node:18-alpine
 WORKDIR /app
 
-# Instalacja tylko zależności produkcyjnych (z buildera)
-COPY --from=builder /app/package*.json ./
-RUN npm install --only=production
+# pnpm via corepack
+RUN corepack enable
 
-# Kopiowanie skompilowanych plików z buildera
-COPY --from=builder /app/dist ./backend
+# Prepare production deps for backend only
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY backend/package.json backend/package.json
+RUN pnpm install --prod --frozen-lockfile --filter kma-wol-backend
 
-# Kopiowanie frontend public (z hosta - to OK)
-COPY frontend/dist ./frontend/dist
+# Copy built artifacts
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/frontend/dist ./frontend/dist
 
-# Port jest konfigurowalny przez zmienną środowiskową PORT
-# Domyślnie: 3000
-# Przykład: docker run -e PORT=8080 -p 8080:8080 kma-wol-app
+# Port (configurable via PORT env; default 3000)
 EXPOSE 3000
 
-# Ustawienie ścieżki do public directory
-# Używane w config/index.ts
-# ponieważ w kontenerze katalogiem roboczym jest /app/, a nie /app/backend
+# Ensure backend resolves public dir correctly
 ENV NODE_CWD=/app/backend
 
-CMD ["node", "backend/server.js"]
+CMD ["node", "backend/dist/src/server.js"]

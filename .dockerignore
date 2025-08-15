@@ -137,6 +137,5 @@ TODO.md
 target/
 .buildx-cache/
 
-# Package files from root (not needed in container)
-package.json
-package-lock.json 
+# Allow workspace/package manager files in build context
+# (required for pnpm workspaces install in Docker)
